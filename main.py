@@ -1,24 +1,72 @@
-from flask import Flask, flash, render_template, request, redirect, url_for
+from flask import Flask, request, render_template
+import spotipy
+import json
+from spotipy.oauth2 import SpotifyClientCredentials
+from celery import Celery
+spotify = spotipy.Spotify(auth_manager=SpotifyClientCredentials())
 
+# Flask constructor
 app = Flask(__name__)
-app.config.from_object("config")
-app.secret_key = app.config['SECRET_KEY']
+app.config.update(
+    CELERY_BROKER_URL='redis://localhost:6379',
+    CELERY_RESULT_BACKEND='redis://localhost:6379'
+)
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'GET':
-        return render_template('index.html')
+def make_celery(app):
+    celery = Celery(
+        app.import_name,
+        backend=app.config['CELERY_RESULT_BACKEND'],
+        broker=app.config['CELERY_BROKER_URL']
+    )
+    celery.conf.update(app.config)
 
-    elif request.method == 'POST':
-        email = request.form['email']
-        first_name = request.form['first_name']
-        last_name = request.form['last_name']
-        message = request.form['message']
-        duration = request.form['duration']
-        duration_unit = request.form['duration_unit']
+    class ContextTask(celery.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
 
-        flash("Message scheduled")
-        return redirect(url_for('index'))
+    celery.Task = ContextTask
+    return celery
+
+
+celery = make_celery(app)
+
+@celery.task()
+def fetch_artist_details(artist):
+    results = spotify.search(q='artist:' + artist, type='artist')
+    items = results['artists']['items']
+
+    if len(items) > 0:
+        artist = items[0]
+        return_data = {}
+        result = spotify.artist_top_tracks(artist['id'])
+        i = 0
+        for track in result['tracks'][:10]:
+            return_data.update({i: {"track name": track['name'], "audio": track['preview_url'], "cover_art":
+                track['album']['images'][0]['url']}})
+            i = i + 1
+            # print('track    : ' + track['name'])
+            # print('audio    : ' + track['preview_url'])
+            # print('cover art: ' + track['album']['images'][0]['url'])
+            # print()
+        return return_data
+
+
+# A decorator used to tell the application
+# which URL is associated function 
+@app.route('/api/v1/get-top-songs/', methods=["GET", "POST"])
+def gfg():
+    if request.method == "POST":
+        artist = request.form.get("artist")
+        print(artist)
+    return render_template("my-form.html")
+
+
+@app.route('/api/v1/get-top-songs/<string:artist>/', methods=['GET'])
+def get_top_song(artist):
+
+    x = fetch_artist_details(artist)
+    return json.dumps(x)
 
 
 if __name__ == '__main__':
