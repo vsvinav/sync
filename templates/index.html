@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+        integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+    <title>Spotify Top Songs</title>
+</head>
+
+<body>
+    <div id="app">
+        <div class="flex flex-col w-1/2 mx-auto">
+            <div class="mx-auto my-8 text-green-600"><i class="fab fa-spotify text-5xl"></i></div>
+            <div class=" mx-auto">
+                <input type="text" class="border border-black rounded py-3 px-3 w-96 text-xl font-semibold"
+                    placeholder="search artist">
+                <div class="text-gray-400 text-2xl cursor-pointer hover:text-gray-800"
+                    style="margin-top: -43px;margin-left:340px;"><i class="fas fa-search"></i></div>
+            </div>
+            <div class="mx-auto my-8 text-xs font-semibold text-gray-600">
+                <span class="px-2 py-1 bg-gray-600 text-gray-100 rounded">ENTER</span> to search
+            </div>
+            <div>
+                <div class="flex flex-wrap gap-2 justify-center" >
+                    <div v-for="item in items">
+                        <div class="w-40 h-full leading-tight p-2 border rounded-lg flex-1 text-gray-800 bg-gray-200 font-semibold">
+                            <div><img :src="item.cover_art" alt="" srcset=""></div>
+                            <div class="my-2 truncate ">
+                                {{item.track_name}}
+                            </div>
+                            <div class="text-3xl text-green-600 hover:text-green-800 cursor-pointer">
+                                <audio muted id="track">
+                                    <source :src="item.audio" type="audio/mpeg">
+                                </audio>
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                items: {
+                    "0": {
+                        "audio": "https://p.scdn.co/mp3-preview/7ce0d4e5f0ffcf8fe1a312c9c2f9331c8d2bf994?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273d8fa5ac6259dba33127b398a",
+                        "track_name": "Wish You Were Here"
+                    },
+                    "1": {
+                        "audio": "https://p.scdn.co/mp3-preview/92210b01fcc6efa80008663c158baf79cf0d7b5f?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273288d32d88a616b9a278ddc07",
+                        "track_name": "Another Brick in the Wall, Pt. 2"
+                    },
+                    "2": {
+                        "audio": "https://p.scdn.co/mp3-preview/daf1a7a5cf0ca8fc212ce61ac3d058fb12e2814f?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273288d32d88a616b9a278ddc07",
+                        "track_name": "Comfortably Numb"
+                    },
+                    "3": {
+                        "audio": "https://p.scdn.co/mp3-preview/eceb1b928c7339ba16bfde8c4f9731af72ee1637?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273f05e5ac32fdd79d100315a20",
+                        "track_name": "Money"
+                    },
+                    "4": {
+                        "audio": "https://p.scdn.co/mp3-preview/83c1f92586bfa2a326b3c7c69aeb9321007f5055?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273f05e5ac32fdd79d100315a20",
+                        "track_name": "Time"
+                    },
+                    "5": {
+                        "audio": "https://p.scdn.co/mp3-preview/3453f7f075272cbb77f09ba0e50914b55c07cedc?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273f05e5ac32fdd79d100315a20",
+                        "track_name": "Breathe (In the Air)"
+                    },
+                    "6": {
+                        "audio": "https://p.scdn.co/mp3-preview/a03fcdbf2223e1fe78f886770b0797553b924fc6?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273288d32d88a616b9a278ddc07",
+                        "track_name": "Hey You"
+                    },
+                    "7": {
+                        "audio": "https://p.scdn.co/mp3-preview/7c03d0cf10ad5784dab1f41840727bbf4492c7f4?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273d8fa5ac6259dba33127b398a",
+                        "track_name": "Shine On You Crazy Diamond (Pts. 1-5)"
+                    },
+                    "8": {
+                        "audio": "https://p.scdn.co/mp3-preview/6e7066dc0fa4173ec9ee83b17953095de076faa1?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273f05e5ac32fdd79d100315a20",
+                        "track_name": "Brain Damage"
+                    },
+                    "9": {
+                        "audio": "https://p.scdn.co/mp3-preview/94d312ff335e2a0d63c1b4623d739d9c1f95ced9?cid=01f1f62971e54956b13539409ba12d10",
+                        "cover_art": "https://i.scdn.co/image/ab67616d0000b273f05e5ac32fdd79d100315a20",
+                        "track_name": "The Great Gig in the Sky"
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
