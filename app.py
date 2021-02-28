@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template
 import spotipy
+from sqlalchemy import create_engine
 import json
 from celery.task import task
 from celery import current_app
@@ -35,6 +36,9 @@ def make_celery(app):
 
 celery = make_celery(app)
 
+"""
+Fetch top songs by artist name using a celery task
+"""
 
 
 @celery.task(name='app.fetch_artist_details', bind=True)
@@ -51,36 +55,38 @@ def fetch_artist_details(self, artist):
             return_data.update({i: {"track_name": track['name'], "audio": track['preview_url'], "cover_art":
                 track['album']['images'][0]['url']}})
             i = i + 1
-            # print('track    : ' + track['name'])
-            # print('audio    : ' + track['preview_url'])
-            # print('cover art: ' + track['album']['images'][0]['url'])
-            # print()
         print(return_data)
         return return_data
 
 
 # A decorator used to tell the application
-# which URL is associated function 
+# which URL is associated function
 @app.route('/api/v1/get-top-songs/', methods=["GET", "POST"])
 def gfg():
     if request.method == "POST":
         artist = request.form.get("artist")
-        x = fetch_artist_details.apply_async(args=[artist])
-        result = x.get()
+        process_task = fetch_artist_details.apply_async(args=[artist])
+        result = process_task.get()
+        task_id = process_task.task_id
+        task_state = process_task.state
         print(artist)
-        return result
+        # Return response
+        response = app.response_class(
+            response=json.dumps(result),
+            status=200,
+            mimetype='application/json'
+        )
+        print(result)
+        return response
 
     return render_template("my-form.html")
 
 
-@app.route('/api/v1/get-top-songs/<string:artist>/', methods=['GET'])
-def get_top_song(artist):
-
-    x = fetch_artist_details.apply_async(args=[artist])
-    # x.wait()
-    result = x.get()
-    print(result)
-    return result
+@app.route('/', methods=['GET'])
+def serve_default_page():
+    artist = request.form.get("artist")
+    print(artist)
+    return app.send_static_file('index.html')
 
 
 if __name__ == '__main__':
