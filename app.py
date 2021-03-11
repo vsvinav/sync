@@ -36,12 +36,12 @@ def make_celery(app):
 
 celery = make_celery(app)
 
+
+@celery.task(name='app.fetch_artist_details', bind=True)
 """
 Fetch top songs by artist name using a celery task
 """
 
-
-@celery.task(name='app.fetch_artist_details', bind=True)
 def fetch_artist_details(self, artist):
     results = spotify.search(q='artist:' + artist, type='artist')
     items = results['artists']['items']
